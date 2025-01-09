@@ -245,6 +245,13 @@
                 />
               </div>
 
+              <div class="input-group">
+                <label>
+                  <input type="checkbox" id="enableOCR" checked>
+                  Lấy nội dung từ hình ảnh (OCR)
+                </label>
+              </div>
+
               <button id="exportBtn">Xuất ra Excel</button>
 
               <div id="progressContainer" class="progress-container">
@@ -340,6 +347,7 @@
               // Recognize text from image using Tesseract
               async function recognizeText(file) {
                 try {
+
                   const worker = await Tesseract.createWorker();
 
                   // Tải và khởi tạo ngôn ngữ
@@ -349,7 +357,7 @@
                   // Cấu hình nhận diện (tùy chỉnh nếu cần)
                   await worker.setParameters({
                     tessedit_char_whitelist: "", // Không giới hạn ký tự nhận diện
-                    preserve_interword_spaces: "1", // Giữ khoảng cách giữa các từ
+                    // preserve_interword_spaces: "1", // Giữ khoảng cách giữa các từ
                   });
 
                   // Tạo URL từ file ảnh đầu vào
@@ -457,6 +465,7 @@
                 .addEventListener("click", async () => {
                   const folderInput = document.getElementById("folderInput");
                   const errorElement = document.getElementById("error");
+                  const enableOCR = document.getElementById("enableOCR").checked;
                   const files = folderInput.files;
 
                   // Validation
@@ -472,9 +481,6 @@
                       files[0].webkitRelativePath.split("/")[0];
                     const workbook = new ExcelJS.Workbook();
                     const worksheet = workbook.addWorksheet("Images");
-                    // Đặt chiều rộng cột D là nhỏ để tạo khoảng trống
-                    worksheet.getColumn(4).header = "Dịch";
-                    worksheet.getColumn(4).width = 100;
 
                     // Set up Excel columns
                     worksheet.columns = [
@@ -482,11 +488,25 @@
                       { header: "Hình ảnh", key: "image", width: 30 },
                       { header: "Nội dung hình", key: "text", width: 40 },
                     ];
+                    worksheet.getColumn(4).header = "Dịch";
+                    worksheet.getColumn(4).width = 50;
 
-                    // Filter image files
-                    const imageFiles = Array.from(files).filter((file) =>
-                      file.type.startsWith("image/")
-                    );
+                    // Filter image files - add more supported image types if needed
+                    const supportedImageTypes = ['image/jpeg', 'image/png','image/jpg', 'image/gif', 'image/bmp', 'image/webp'];
+                    const imageFiles = Array.from(files).filter(file => {
+                      if (!supportedImageTypes.includes(file.type)) {
+                        console.log(`Bỏ qua file không hỗ trợ: ${file.name} (${file.type})`);
+                        return false;
+                      }
+                      return true;
+                    });
+
+                    if (imageFiles.length === 0) {
+                      errorElement.textContent = "Không tìm thấy file hình ảnh hợp lệ trong thư mục.";
+                      return;
+                    }
+
+                    let maxImageWidth = 0;
 
                     // Process each image
                     for (let i = 0; i < imageFiles.length; i++) {
@@ -497,48 +517,62 @@
 
                       updateProgress(
                         percent,
-                        `Đang xử lý hình ảnh  ${i + 1} trên  ${
-                          imageFiles.length
-                        }...`
+                        `Đang xử lý hình ảnh ${i + 1}/${imageFiles.length}: ${file.name}`
                       );
 
-                      // Process image data in parallel
-                      const [originalDimensions, base64Data, recognizedText] =
-                        await Promise.all([
-                          getImageDimensions(file),
-                          toBase64(file),
-                          recognizeText(file),
-                        ]);
+                      try {
+                        // Chỉ thực hiện OCR nếu checkbox được chọn
+                        const recognitionPromise = enableOCR 
+                          ? recognizeText(file)
+                          : Promise.resolve(""); // Trả về chuỗi rỗng nếu không dùng OCR
 
-                      // Tính toán kích thước phù hợp cho ô Excel
-                      const dimensions = calculateImageDimensions(
-                        originalDimensions.width,
-                        originalDimensions.height
-                      );
+                        // Process image data in parallel
+                        const [originalDimensions, base64Data, recognizedText] =
+                          await Promise.all([
+                            getImageDimensions(file),
+                            toBase64(file),
+                            recognitionPromise,
+                          ]);
 
-                      // Add image to workbook
-                      const imageId = workbook.addImage({
-                        base64: base64Data,
-                        extension: file.name.split(".").pop(),
-                      });
+                        // Tính toán kích thước phù hợp cho ô Excel
+                        const dimensions = calculateImageDimensions(
+                          originalDimensions.width,
+                          originalDimensions.height
+                        );
 
-                      // Add row to worksheet
-                      const rowIndex = worksheet.addRow({
-                        name: file.name,
-                        text: recognizedText,
-                      }).number;
+                        // Cập nhật chiều rộng lớn nhất của hình ảnh
+                        if (dimensions.width > maxImageWidth) {
+                          maxImageWidth = dimensions.width;
+                        }
 
-                      // Set row height and column width
-                      worksheet.getRow(rowIndex).height = dimensions.height + 5;
-                      worksheet.getColumn(2).width = dimensions.width / 7;
+                        // Add image to workbook
+                        const imageId = workbook.addImage({
+                          base64: base64Data,
+                          extension: file.name.split(".").pop(),
+                        });
 
-                      // Add image to cell
-                      worksheet.addImage(imageId, {
-                        tl: { col: 1, row: rowIndex - 1 },
-                        ext: dimensions,
-                        editAs: "oneCell", // Quan trọng: giữ hình ảnh trong ô);
-                      });
+                        // Add row to worksheet
+                        const rowIndex = worksheet.addRow({
+                          name: file.name,
+                          text: recognizedText,
+                        }).number;
+
+                        // Set row height to match image height
+                        worksheet.getRow(rowIndex).height = dimensions.height + 5;
+
+                        // Add image to cell
+                        worksheet.addImage(imageId, {
+                          tl: { col: 1, row: rowIndex - 1 },
+                          ext: dimensions,
+                          editAs: "oneCell", // Quan trọng: giữ hình ảnh trong ô);
+                        });
+                      } catch (error) {
+                        console.error(`Lỗi xử lý hình ảnh ${file.name}:`, error);
+                      }
                     }
+
+                    // Set column width to match the widest image
+                    worksheet.getColumn(2).width = maxImageWidth / 7;
 
                     // Save workbook
                     updateProgress(100, "Đang xuất ra Excel");
