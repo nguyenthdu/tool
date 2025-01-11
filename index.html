@@ -239,17 +239,12 @@
                 <input
                   type="file"
                   id="folderInput"
-                  multiple
                   webkitdirectory
                   directory
+                  multiple
                 />
               </div>
-              <div class="options">
-                <label>
-                  <input type="checkbox" id="includeOcr" />
-                  Lấy nội dung hình ảnh (OCR)
-                </label>
-              </div>
+
               <button id="exportBtn">Xuất ra Excel</button>
 
               <div id="progressContainer" class="progress-container">
@@ -369,7 +364,34 @@
                   return "Lấy nội dung thất bại";
                 }
               }
+              // Recognize text from image using Tesseract
+              // async function recognizeText(file) {
+              //   try {
+              //     // Xử lý ảnh trước OCR
+              //     // const processedImage = await preprocessImage(file);
 
+              //     // Tạo worker Tesseract
+              //     const worker = await Tesseract.createWorker({
+              //       logger: (m) => console.log(m), // Log tiến trình OCR
+              //     });
+
+              //     // Tải và khởi tạo ngôn ngữ
+              //     await worker.loadLanguage("chi_sim+chi_tra+eng");
+              //     await worker.initialize("chi_sim+chi_tra+eng");
+
+              //     // OCR với ảnh đã xử lý
+              //     const url = URL.createObjectURL(processedImage);
+              //     const result = await worker.recognize(url);
+
+              //     await worker.terminate();
+              //     URL.revokeObjectURL(url);
+
+              //     return result.data.text.trim();
+              //   } catch (error) {
+              //     console.error("Lỗi OCR:", error);
+              //     return "Không nhận diện được nội dung.";
+              //   }
+              // }
               // Utility function to update progress
               function updateProgress(percent, status) {
                 const progress = document.getElementById("progress");
@@ -434,8 +456,6 @@
                 .getElementById("exportBtn")
                 .addEventListener("click", async () => {
                   const folderInput = document.getElementById("folderInput");
-                  const includeOcr =
-                    document.getElementById("includeOcr").checked;
                   const errorElement = document.getElementById("error");
                   const files = folderInput.files;
 
@@ -448,7 +468,6 @@
 
                   try {
                     errorElement.textContent = "";
-
                     const folderName =
                       files[0].webkitRelativePath.split("/")[0];
                     const workbook = new ExcelJS.Workbook();

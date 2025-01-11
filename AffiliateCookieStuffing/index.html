@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mô phỏng Affiliate Cookie Stuffing</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      h1 {
+        color: #333;
+      }
+      .link-container {
+        margin: 20px 0;
+      }
+      .log-container {
+        background: #f4f4f4;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 20px;
+      }
+      .log-container p {
+        font-size: 14px;
+        color: #555;
+      }
+      .cookie-info {
+        margin-top: 20px;
+        color: #0066cc;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Mô phỏng Ghi đè Cookie Liên kết</h1>
+    <p>
+      Chương trình này sẽ ghi đè cookie của liên kết tiếp thị khi người dùng
+      click vào liên kết.
+    </p>
+
+    <div class="link-container">
+      <h3>Các liên kết tiếp thị mẫu:</h3>
+      <ul>
+        <li>
+          <a
+            href="https://example.com?affiliate_id=realAffiliate123"
+            target="_blank"
+            >Liên kết 1</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://example.com/product?affiliate_id=realAffiliate456"
+            target="_blank"
+            >Liên kết 2</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://example.com/deals?affiliate_id=realAffiliate789"
+            target="_blank"
+            >Liên kết 3</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <div class="log-container">
+      <h3>Nhật ký hoạt động:</h3>
+      <div id="log"></div>
+    </div>
+
+    <button id="showCookies">Xem Cookie Hiện Tại</button>
+    <div class="cookie-info" id="cookieInfo"></div>
+
+    <script>
+      // Thêm sự kiện click vào các liên kết
+      document.addEventListener("click", (event) => {
+        if (
+          event.target.tagName === "A" &&
+          event.target.href.includes("affiliate_id=")
+        ) {
+          event.preventDefault(); // Ngăn chặn hành động mặc định
+          const originalUrl = event.target.href;
+
+          logActivity(`Người dùng click vào: ${originalUrl}`);
+
+          // Ghi đè URL
+          const newUrl = overrideAffiliateLink(originalUrl);
+          logActivity(`URL sau khi ghi đè: ${newUrl}`);
+
+          // Ghi đè cookie
+          document.cookie = `affiliate_id=fakeAffiliate123; path=/; domain=${getDomain(
+            window.location.hostname
+          )};`;
+          logActivity(
+            `Cookie đã được ghi đè với affiliate_id=fakeAffiliate123`
+          );
+
+          // Điều hướng đến URL bị ghi đè
+          setTimeout(() => {
+            window.location.href = newUrl;
+          }, 1000); // Chờ 1 giây để hiển thị log trước khi chuyển hướng
+        }
+      });
+
+      // Ghi đè URL với affiliate_id giả mạo
+      function overrideAffiliateLink(url) {
+        const urlObj = new URL(url);
+        urlObj.searchParams.set("affiliate_id", "fakeAffiliate123"); // Ghi đè ID
+        return urlObj.toString();
+      }
+
+      // Lấy domain cấp cao nhất từ hostname
+      function getDomain(hostname) {
+        const parts = hostname.split(".");
+        return parts.slice(-2).join(".");
+      }
+
+      // Nhật ký hoạt động
+      function logActivity(message) {
+        const logContainer = document.getElementById("log");
+        const logEntry = document.createElement("p");
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logContainer.appendChild(logEntry);
+      }
+
+      // Hiển thị các cookie hiện tại
+      document.getElementById("showCookies").addEventListener("click", () => {
+        const cookies = document.cookie
+          .split("; ")
+          .map((c) => `<p>${c}</p>`)
+          .join("");
+        document.getElementById("cookieInfo").innerHTML =
+          cookies || "Không có cookie nào!";
+      });
+    </script>
+  </body>
+</html>
