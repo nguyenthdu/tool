@@ -4,125 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image Version Management</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 20px;
-        background-color: #f5f5f5;
-      }
 
-      .container {
-        max-width: 1000px;
-        margin: 0 auto;
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .tab-container {
-        margin-bottom: 20px;
-      }
-
-      .tab-button {
-        padding: 10px 20px;
-        margin-right: 10px;
-        border: none;
-        background-color: #ddd;
-        cursor: pointer;
-        border-radius: 4px;
-      }
-
-      .tab-button.active {
-        background-color: #4caf50;
-        color: white;
-      }
-
-      .tab-content {
-        display: none;
-      }
-
-      .tab-content.active {
-        display: block;
-      }
-
-      h1,
-      h2 {
-        color: #333;
-        margin-bottom: 20px;
-      }
-
-      .input-group {
-        margin-bottom: 20px;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 10px;
-        color: #666;
-      }
-
-      input[type="file"],
-      input[type="text"] {
-        display: block;
-        margin-bottom: 10px;
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
-
-      button {
-        background-color: #4caf50;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-        width: 100%;
-      }
-
-      button:hover {
-        background-color: #45a049;
-      }
-
-      .progress-container {
-        margin-top: 20px;
-        display: none;
-      }
-
-      .progress-bar {
-        width: 100%;
-        height: 20px;
-        background-color: #f0f0f0;
-        border-radius: 10px;
-        overflow: hidden;
-      }
-
-      .progress {
-        width: 0%;
-        height: 100%;
-        background-color: #4caf50;
-        transition: width 0.3s ease;
-      }
-
-      #status {
-        margin-top: 10px;
-        text-align: center;
-        color: #666;
-      }
-
-      .error {
-        color: #ff0000;
-        margin-top: 10px;
-        text-align: center;
-      }
-    </style>
+    <!-- Tham chiếu file CSS -->
+    <link rel="stylesheet" href="css/style.css" />
   </head>
+
   <body>
     <div class="container">
+      <!-- ===== TAB CONTAINER ===== -->
       <div class="tab-container">
         <button class="tab-button active" onclick="switchTab('export')">
           Chuyển hình ảnh sang Excel
@@ -132,457 +21,67 @@
         </button>
       </div>
 
-      <!-- Tab nội dung cho Export -->
+      <!-- ========== TAB EXPORT ========== -->
       <div id="exportTab" class="tab-content active">
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta
-              name="viewport"
-              content="width=device-width, initial-scale=1.0"
-            />
-            <title>Image Folder to Excel with OCR</title>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 20px;
-                background-color: #f5f5f5;
-              }
+        <h1>Chuyển hình ảnh sang Excel</h1>
+        <div class="input-group">
+          <label for="folderInput">Chọn một thư mục chứa hình ảnh:</label>
+          <input
+            type="file"
+            id="folderInput"
+            webkitdirectory
+            directory
+            multiple
+          />
+        </div>
+        <div class="input-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="enableOCR" />
+            Lấy nội dung từ hình ảnh (OCR)
+          </label>
+        </div>
+        <div class="input-group" id="languageGroup">
+          <label for="ocrLanguage">Chọn ngôn ngữ OCR:</label>
+          <select id="ocrLanguage">
+            <option value="chi_tra+chi_sim">Tiếng Trung</option>
+            <option value="eng">Tiếng Anh</option>
+            <option value="vie">Tiếng Việt</option>
+            <!-- Thêm các ngôn ngữ khác nếu cần -->
+          </select>
+        </div>
+        <button id="exportBtn">Xuất ra Excel</button>
 
-              .container {
-                max-width: 800px;
-                margin: 0 auto;
-                background-color: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-              }
-
-              h1 {
-                color: #333;
-                text-align: center;
-                margin-bottom: 30px;
-              }
-
-              .input-group {
-                margin-bottom: 20px;
-              }
-
-              label {
-                display: block;
-                margin-bottom: 10px;
-                color: #666;
-              }
-
-              input[type="file"] {
-                display: block;
-                margin-bottom: 20px;
-                width: 100%;
-              }
-
-              button {
-                background-color: #4caf50;
-                color: white;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 16px;
-                width: 100%;
-              }
-
-              button:hover {
-                background-color: #45a049;
-              }
-
-              .progress-container {
-                margin-top: 20px;
-                display: none;
-              }
-
-              .progress-bar {
-                width: 100%;
-                height: 20px;
-                background-color: #f0f0f0;
-                border-radius: 10px;
-                overflow: hidden;
-              }
-
-              .progress {
-                width: 0%;
-                height: 100%;
-                background-color: #4caf50;
-                transition: width 0.3s ease;
-              }
-
-              #status {
-                margin-top: 10px;
-                text-align: center;
-                color: #666;
-              }
-
-              .error {
-                color: #ff0000;
-                margin-top: 10px;
-                text-align: center;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>Chuyển hình ảnh từ thư mục sang Excel</h1>
-
-              <div class="input-group">
-                <label for="folderInput">Chọn một thư mục chứa hình ảnh:</label>
-                <input
-                  type="file"
-                  id="folderInput"
-                  multiple
-                  webkitdirectory
-                  directory
-                />
-              </div>
-              <div class="options">
-                <label>
-                  <input type="checkbox" id="includeOcr" />
-                  Lấy nội dung hình ảnh (OCR)
-                </label>
-              </div>
-              <button id="exportBtn">Xuất ra Excel</button>
-
-              <div id="progressContainer" class="progress-container">
-                <div class="progress-bar">
-                  <div id="progress" class="progress"></div>
-                </div>
-                <p id="status"></p>
-              </div>
-
-              <p id="error" class="error"></p>
-            </div>
-
-            <!-- Load required libraries -->
-            <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
-            <!-- v5 -->
-            <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-            <!-- <script
-              async
-              src="https://docs.opencv.org/10.0.0/opencv.js"
-            ></script> -->
-            <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
-
-            <script>
-              // Xử lý ảnh bằng OpenCV.js
-              async function preprocessImage(file) {
-                return new Promise((resolve, reject) => {
-                  console.log("Bắt đầu xử lý hình ảnh với OpenCV.js...");
-                  const img = new Image();
-                  const url = URL.createObjectURL(file);
-
-                  img.onload = () => {
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
-
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-
-                    // Đọc hình ảnh từ canvas
-                    const src = cv.imread(canvas);
-                    const gray = new cv.Mat();
-
-                    // Chuyển sang grayscale
-                    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
-
-                    // Tăng cường độ tương phản
-                    const clahe = new cv.createCLAHE(2.0, new cv.Size(8, 8));
-                    clahe.apply(gray, gray);
-
-                    // Chuyển đổi ảnh sang đen trắng
-                    const binary = new cv.Mat();
-                    cv.adaptiveThreshold(
-                      gray,
-                      binary,
-                      255,
-                      cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-                      cv.THRESH_BINARY,
-                      11,
-                      2
-                    );
-
-                    // Giảm nhiễu
-                    const ksize = new cv.Size(3, 3);
-                    cv.GaussianBlur(
-                      binary,
-                      binary,
-                      ksize,
-                      0,
-                      0,
-                      cv.BORDER_DEFAULT
-                    );
-
-                    cv.imshow(canvas, binary); // Hiển thị ảnh nếu cần
-                    canvas.toBlob((blob) => resolve(blob)); // Trả về blob để OCR
-
-                    src.delete();
-                    gray.delete();
-                    binary.delete();
-                    URL.revokeObjectURL(url);
-                  };
-
-                  img.onerror = (error) => {
-                    reject(error);
-                    URL.revokeObjectURL(url);
-                  };
-
-                  img.src = url;
-                });
-              }
-
-              // Tạo worker Tesseract
-
-              // Recognize text from image using Tesseract
-              async function recognizeText(file) {
-                try {
-                  const worker = await Tesseract.createWorker();
-
-                  // Tải và khởi tạo ngôn ngữ
-                  await worker.loadLanguage("chi_sim+eng");
-                  await worker.initialize("chi_sim+eng");
-
-                  // Cấu hình nhận diện (tùy chỉnh nếu cần)
-                  await worker.setParameters({
-                    tessedit_char_whitelist: "", // Không giới hạn ký tự nhận diện
-                    preserve_interword_spaces: "1", // Giữ khoảng cách giữa các từ
-                  });
-
-                  // Tạo URL từ file ảnh đầu vào
-                  const url = URL.createObjectURL(file);
-                  const result = await worker.recognize(url); // Thực hiện OCR
-                  await worker.terminate(); // Kết thúc worker
-                  URL.revokeObjectURL(url); // Hủy URL tạm thời
-
-                  return result.data.text.trim(); // Kết quả nhận diện
-                } catch (error) {
-                  console.error("Lỗi đọc nội dung hình ảnh:", error);
-                  return "Lấy nội dung thất bại";
-                }
-              }
-
-              // Utility function to update progress
-              function updateProgress(percent, status) {
-                const progress = document.getElementById("progress");
-                const statusElement = document.getElementById("status");
-                const progressContainer =
-                  document.getElementById("progressContainer");
-
-                progressContainer.style.display = "block";
-                progress.style.width = `${percent}%`;
-                statusElement.textContent = status;
-              }
-
-              // Convert image to base64
-              function toBase64(file) {
-                return new Promise((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = () => resolve(reader.result.split(",")[1]);
-                  reader.onerror = (error) => reject(error);
-                  reader.readAsDataURL(file);
-                });
-              }
-
-              // Get image dimensions
-              function getImageDimensions(file) {
-                return new Promise((resolve, reject) => {
-                  const img = new Image();
-                  const url = URL.createObjectURL(file);
-
-                  img.onload = () => {
-                    resolve({ width: img.width, height: img.height });
-                    URL.revokeObjectURL(url);
-                  };
-
-                  img.onerror = (error) => {
-                    reject(error);
-                    URL.revokeObjectURL(url);
-                  };
-
-                  img.src = url;
-                });
-              }
-
-              // Thêm hàm mới để tính toán kích thước hình ảnh phù hợp
-              function calculateImageDimensions(
-                originalWidth,
-                originalHeight,
-                maxWidth = 200,
-                maxHeight = 100
-              ) {
-                const ratio = Math.min(
-                  maxWidth / originalWidth,
-                  maxHeight / originalHeight
-                );
-                return {
-                  width: Math.floor(originalWidth * ratio),
-                  height: Math.floor(originalHeight * ratio),
-                };
-              }
-
-              // Main export function
-              document
-                .getElementById("exportBtn")
-                .addEventListener("click", async () => {
-                  const folderInput = document.getElementById("folderInput");
-                  const includeOcr =
-                    document.getElementById("includeOcr").checked;
-                  const errorElement = document.getElementById("error");
-                  const files = folderInput.files;
-
-                  // Validation
-                  if (files.length === 0) {
-                    errorElement.textContent =
-                      "Vui lòng chọn một thư mục chứa hình ảnh.";
-                    return;
-                  }
-
-                  try {
-                    errorElement.textContent = "";
-
-                    const folderName =
-                      files[0].webkitRelativePath.split("/")[0];
-                    const workbook = new ExcelJS.Workbook();
-                    const worksheet = workbook.addWorksheet("Images");
-                    // Đặt chiều rộng cột D là nhỏ để tạo khoảng trống
-                    worksheet.getColumn(4).header = "Dịch";
-                    worksheet.getColumn(4).width = 100;
-
-                    // Set up Excel columns
-                    worksheet.columns = [
-                      { header: "Tên hình", key: "name", width: 30 },
-                      { header: "Hình ảnh", key: "image", width: 30 },
-                      { header: "Nội dung hình", key: "text", width: 40 },
-                    ];
-
-                    // Filter image files
-                    const imageFiles = Array.from(files).filter((file) =>
-                      file.type.startsWith("image/")
-                    );
-
-                    // Process each image
-                    for (let i = 0; i < imageFiles.length; i++) {
-                      const file = imageFiles[i];
-                      const percent = Math.round(
-                        ((i + 1) / imageFiles.length) * 100
-                      );
-
-                      updateProgress(
-                        percent,
-                        `Đang xử lý hình ảnh  ${i + 1} trên  ${
-                          imageFiles.length
-                        }...`
-                      );
-
-                      // Process image data in parallel
-                      const [originalDimensions, base64Data, recognizedText] =
-                        await Promise.all([
-                          getImageDimensions(file),
-                          toBase64(file),
-                          recognizeText(file),
-                        ]);
-
-                      // Tính toán kích thước phù hợp cho ô Excel
-                      const dimensions = calculateImageDimensions(
-                        originalDimensions.width,
-                        originalDimensions.height
-                      );
-
-                      // Add image to workbook
-                      const imageId = workbook.addImage({
-                        base64: base64Data,
-                        extension: file.name.split(".").pop(),
-                      });
-
-                      // Add row to worksheet
-                      const rowIndex = worksheet.addRow({
-                        name: file.name,
-                        text: recognizedText,
-                      }).number;
-
-                      // Set row height and column width
-                      worksheet.getRow(rowIndex).height = dimensions.height + 5;
-                      worksheet.getColumn(2).width = dimensions.width / 7;
-
-                      // Add image to cell
-                      worksheet.addImage(imageId, {
-                        tl: { col: 1, row: rowIndex - 1 },
-                        ext: dimensions,
-                        editAs: "oneCell", // Quan trọng: giữ hình ảnh trong ô);
-                      });
-                    }
-
-                    // Save workbook
-                    updateProgress(100, "Đang xuất ra Excel");
-                    const buffer = await workbook.xlsx.writeBuffer();
-
-                    // Create download link
-                    const blob = new Blob([buffer], {
-                      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `${folderName}.xlsx`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-
-                    updateProgress(100, "Xuất thành công!");
-
-                    // Reset progress bar after 3 seconds
-                    setTimeout(() => {
-                      document.getElementById(
-                        "progressContainer"
-                      ).style.display = "none";
-                      updateProgress(0, "");
-                      location.reload(); // Làm mới trang web
-                    }, 2000);
-                  } catch (error) {
-                    console.error("Xuất lỗi:", error);
-                    errorElement.textContent = `Xuất lỗi: ${error.message}`;
-                    document.getElementById("progressContainer").style.display =
-                      "none";
-                  }
-                });
-            </script>
-          </body>
-        </html>
+        <div id="progressContainer" class="progress-container">
+          <div class="progress-bar">
+            <div id="progress" class="progress"></div>
+          </div>
+          <p id="status"></p>
+        </div>
+        <p id="error" class="error"></p>
       </div>
+      <!-- ========== END TAB EXPORT ========== -->
 
-      <!-- Tab nội dung cho Update Version -->
+      <!-- ========== TAB UPDATE ========== -->
       <div id="updateTab" class="tab-content">
         <h2>Cập nhật phiên bản hình ảnh</h2>
 
         <div class="input-group">
           <label for="excelFile"
-            >Chọn tệp Excel đã có danh sách hình ảnh(chỉ hỗ trợ tệp
-            .xlsx):</label
+            >Chọn tệp Excel đã có danh sách hình ảnh (chỉ .xlsx):</label
           >
           <input type="file" id="excelFile" accept=".xlsx" />
         </div>
-
         <div class="input-group">
-          <label for="versionName">Tên phiên bản(tên cột):</label>
+          <label for="versionName">Tên phiên bản (tên cột):</label>
           <input
             type="text"
             id="versionName"
-            placeholder="e.g., v2, version2"
+            placeholder="vd: v2, version2..."
           />
         </div>
-
         <div class="input-group">
           <label for="newImagesFolder"
-            >Chọn thư mục chứa danh sách hình ảnh muốn cập nhật phiên bản của
-            tệp Excel:</label
+            >Chọn thư mục chứa danh sách hình ảnh muốn cập nhật:</label
           >
           <input
             type="file"
@@ -592,7 +91,6 @@
             multiple
           />
         </div>
-
         <button id="updateBtn">Thêm phiên bản</button>
 
         <div id="updateProgressContainer" class="progress-container">
@@ -601,239 +99,17 @@
           </div>
           <p id="updateStatus"></p>
         </div>
-
         <p id="updateError" class="error"></p>
       </div>
+      <!-- ========== END TAB UPDATE ========== -->
     </div>
 
-    <!-- Load required libraries -->
+    <!-- ================== Thư viện bên ngoài ================== -->
     <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
     <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+    <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
 
-    <script>
-      // Function to switch between tabs
-      function switchTab(tabName) {
-        document.querySelectorAll(".tab-button").forEach((button) => {
-          button.classList.remove("active");
-        });
-        document.querySelectorAll(".tab-content").forEach((content) => {
-          content.classList.remove("active");
-        });
-
-        document
-          .querySelector(`button[onclick="switchTab('${tabName}')"]`)
-          .classList.add("active");
-        document.getElementById(`${tabName}Tab`).classList.add("active");
-      }
-
-      // Update progress function for version update
-      function updateVersionProgress(percent, status) {
-        const progress = document.getElementById("updateProgress");
-        const statusElement = document.getElementById("updateStatus");
-        const progressContainer = document.getElementById(
-          "updateProgressContainer"
-        );
-
-        progressContainer.style.display = "block";
-        progress.style.width = `${percent}%`;
-        statusElement.textContent = status;
-      }
-
-      // Function to get image dimensions (reused from original code)
-      function getImageDimensions(file) {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          const url = URL.createObjectURL(file);
-
-          img.onload = () => {
-            resolve({ width: img.width, height: img.height });
-            URL.revokeObjectURL(url);
-          };
-
-          img.onerror = (error) => {
-            reject(error);
-            URL.revokeObjectURL(url);
-          };
-
-          img.src = url;
-        });
-      }
-
-      // Function to convert image to base64 (reused from original code)
-      function toBase64(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result.split(",")[1]);
-          reader.onerror = (error) => reject(error);
-          reader.readAsDataURL(file);
-        });
-      }
-      // Thêm hàm mới để tính toán kích thước hình ảnh phù hợp
-      function calculateImageDimensions(
-        originalWidth,
-        originalHeight,
-        maxWidth = 200,
-        maxHeight = 100
-      ) {
-        const ratio = Math.min(
-          maxWidth / originalWidth,
-          maxHeight / originalHeight
-        );
-        return {
-          width: Math.floor(originalWidth * ratio),
-          height: Math.floor(originalHeight * ratio),
-        };
-      }
-      // Handle version update
-      // Thay thế phần xử lý cập nhật trong event listener của updateBtn bằng code sau:
-      document
-        .getElementById("updateBtn")
-        .addEventListener("click", async () => {
-          const excelFile = document.getElementById("excelFile").files[0];
-          const versionName = document
-            .getElementById("versionName")
-            .value.trim();
-          const newImagesFolder =
-            document.getElementById("newImagesFolder").files;
-          const errorElement = document.getElementById("updateError");
-
-          // Validation
-          if (!excelFile) {
-            errorElement.textContent = "Vui lòng chọn file Excel.";
-            return;
-          }
-          if (!versionName) {
-            errorElement.textContent = "Vui lòng nhập tên phiên bản.";
-            return;
-          }
-          if (newImagesFolder.length === 0) {
-            errorElement.textContent = "Vui lòng chọn thư mục chứa hình ảnh.";
-            return;
-          }
-
-          try {
-            errorElement.textContent = "";
-            updateVersionProgress(0, "Đang xử lý...");
-
-            const workbook = new ExcelJS.Workbook();
-            const excelData = await excelFile.arrayBuffer();
-            await workbook.xlsx.load(excelData);
-
-            const worksheet = workbook.worksheets[0];
-
-            // Kiểm tra version name
-            const headers = [];
-            worksheet.getRow(1).eachCell((cell) => {
-              headers.push(cell.value);
-            });
-
-            if (headers.includes(versionName)) {
-              errorElement.textContent = `Tên phiên bản  "${versionName}" đã tồn tại.`;
-              return;
-            }
-
-            // Tạo map cho hình ảnh mới
-            const newImages = {};
-            Array.from(newImagesFolder).forEach((file) => {
-              if (file.type.startsWith("image/")) {
-                newImages[file.name] = file;
-              }
-            });
-
-            // Tìm cột cuối cùng có dữ liệu
-            let lastColumn = 1;
-            worksheet.getRow(1).eachCell((cell) => {
-              lastColumn = cell.col;
-            });
-
-            // Xác định cột mới, bắt đầu từ cột E nếu chưa có dữ liệu
-            const newColumnIndex = Math.max(5, lastColumn + 1); // 5 tương ứng với cột E
-
-            // Thiết lập cột mới
-            worksheet.getCell(1, newColumnIndex).value = versionName;
-            worksheet.getColumn(newColumnIndex).width = 30;
-
-            // Xử lý từng dòng
-            let processedCount = 0;
-            const totalRows = worksheet.rowCount;
-
-            for (let rowNumber = 2; rowNumber <= totalRows; rowNumber++) {
-              const imageName = worksheet.getCell(rowNumber, 1).value;
-
-              if (imageName && newImages[imageName]) {
-                const newImageFile = newImages[imageName];
-
-                // Xử lý hình ảnh
-                const [originalDimensions, base64Data] = await Promise.all([
-                  getImageDimensions(newImageFile),
-                  toBase64(newImageFile),
-                ]);
-
-                // Tính toán kích thước phù hợp cho ô Excel
-                const dimensions = calculateImageDimensions(
-                  originalDimensions.width,
-                  originalDimensions.height
-                );
-
-                // Thêm hình ảnh vào workbook
-                const imageId = workbook.addImage({
-                  base64: base64Data,
-                  extension: newImageFile.name.split(".").pop(),
-                });
-
-                // Thiết lập chiều cao dòng phù hợp
-                worksheet.getRow(rowNumber).height = dimensions.height + 5; // Thêm padding
-
-                // Thêm hình ảnh vào ô mới với căn chỉnh
-                worksheet.addImage(imageId, {
-                  tl: {
-                    col: newColumnIndex - 1,
-                    row: rowNumber - 1,
-                  },
-                  ext: dimensions,
-                  editAs: "oneCell", // Quan trọng: giữ hình ảnh trong ô
-                });
-              }
-
-              processedCount++;
-              updateVersionProgress(
-                Math.round((processedCount / totalRows) * 100),
-                `Đang xử lý ${processedCount} trên  ${totalRows}...`
-              );
-            }
-
-            // Lưu workbook
-            updateVersionProgress(90, "Đang tải xuống...");
-            const buffer = await workbook.xlsx.writeBuffer();
-
-            const blob = new Blob([buffer], {
-              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            //replace .xlsx with the name of the original file
-            filename = excelFile.name;
-            filename = filename.replace(".xlsx", "");
-            a.download = `${filename}_${versionName}.xlsx`;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            updateVersionProgress(100, "Thêm phiên bản thành công!");
-
-            setTimeout(() => {
-              document.getElementById("updateProgressContainer").style.display =
-                "none";
-              updateVersionProgress(0, "");
-              location.reload();
-            }, 2000);
-          } catch (error) {
-            console.error("Update error:", error);
-            errorElement.textContent = `Update failed: ${error.message}`;
-            document.getElementById("updateProgressContainer").style.display =
-              "none";
-          }
-        });
-    </script>
+    <!-- ================== File logic (JS) ================== -->
+    <script src="js/logic.js"></script>
   </body>
 </html>
